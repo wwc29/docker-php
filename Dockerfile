@@ -44,5 +44,5 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --install-dir=/usr/local/bin \
     && php -r "unlink('composer-setup.php');"
 
-RUN mv /usr/local/bin/composer.phar /usr/local/bin/composer
+RUN mv /usr/local/bin/composer.phar /usr/local/bin/composer \
     && chmod +x /usr/local/bin/composer
