@@ -18,12 +18,10 @@ RUN apt-get install -y libzip-dev zip \
 	&& docker-php-ext-install zip
 
 RUN docker-php-ext-install -j$(nproc) \
-    fileinfo \
     bcmath \
     calendar \
     pcntl \
-    pdo_mysql \
-    mbstring
+    pdo_mysql
 
 RUN pecl install redis yaconf \
     && docker-php-ext-enable redis yaconf
@@ -40,9 +38,27 @@ RUN docker-php-ext-install gd
 RUN docker-php-ext-install opcache
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && php -r "if (hash_file('sha384', 'composer-setup.php') === '572cb359b56ad9ae52f9c23d29d4b19a040af10d6635642e646a7caa7b96de717ce683bd797a92ce99e5929cc51e7d5f') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
-    && php composer-setup.php --install-dir=/usr/local/bin \
-    && php -r "unlink('composer-setup.php');"
-
-RUN mv /usr/local/bin/composer.phar /usr/local/bin/composer \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');"\
+    && mv composer.phar /usr/local/bin/composer \
     && chmod +x /usr/local/bin/composer
+
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+# nginx start
+RUN apt-get install -y nginx
+RUN rm -f /etc/nginx/sites-available/default
+COPY nginx/enable-php.conf /etc/nginx/enable-php.conf
+COPY nginx/site.conf /etc/nginx/conf.d/site.conf
+#nginx end
+
+RUN rm -f /usr/local/etc/php-fpm.d/zz-docker.conf
+
+COPY entrypoint.sh /etc/entrypoint.sh
+ENTRYPOINT ["/etc/entrypoint.sh"]
+
+COPY html /var/www/html
+
+STOPSIGNAL SIGQUIT
+EXPOSE 80
+CMD ["php-fpm", "-F"]
