@@ -59,6 +59,8 @@ ENTRYPOINT ["/etc/entrypoint.sh"]
 
 COPY html /var/www/html
 
+COPY php/conf.d/docker-php-ext-opcache.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+
 STOPSIGNAL SIGQUIT
 EXPOSE 80
 CMD ["php-fpm", "-F"]
