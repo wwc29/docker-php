@@ -61,6 +61,11 @@ COPY html /var/www/html
 
 COPY php/conf.d/docker-php-ext-opcache.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
+COPY pecl/swoole-4.6.0.tgz /tmp
+RUN pecl install /tmp/swoole-4.6.0.tgz \
+    && docker-php-ext-enable swoole \
+    && rm -f /tmp/swoole-4.6.0.tgz
+
 STOPSIGNAL SIGQUIT
 EXPOSE 80
 CMD ["php-fpm", "-F"]
