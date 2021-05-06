@@ -70,6 +70,9 @@ RUN  pecl install https://pecl.php.net/get/swoole-${swoole_version}.tgz \
 RUN pecl install ssh2-1.2 \
     && docker-php-ext-enable ssh2
 
+RUN echo "* soft nofile 655360" >> /etc/security/limits.conf \
+    && echo "* hard nofile 655360" >> /etc/security/limits.conf
+
 STOPSIGNAL SIGQUIT
 EXPOSE 80
 CMD ["php-fpm", "-F"]
