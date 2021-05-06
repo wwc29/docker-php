@@ -61,10 +61,14 @@ COPY html /var/www/html
 
 COPY php/conf.d/docker-php-ext-opcache.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
-COPY pecl/swoole-4.6.0.tgz /tmp
-RUN pecl install /tmp/swoole-4.6.0.tgz \
-    && docker-php-ext-enable swoole \
-    && rm -f /tmp/swoole-4.6.0.tgz
+RUN apt-get install -y wget libssh2-1-dev
+
+ENV swoole_version=4.6.6
+RUN  pecl install https://pecl.php.net/get/swoole-${swoole_version}.tgz \
+    && docker-php-ext-enable swoole
+
+RUN pecl install ssh2-1.2 \
+    && docker-php-ext-enable ssh2
 
 STOPSIGNAL SIGQUIT
 EXPOSE 80
