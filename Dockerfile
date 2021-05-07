@@ -37,14 +37,6 @@ RUN docker-php-ext-install gd
 
 RUN docker-php-ext-install opcache
 
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && php composer-setup.php \
-    && php -r "unlink('composer-setup.php');"\
-    && mv composer.phar /usr/local/bin/composer \
-    && chmod +x /usr/local/bin/composer
-
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-
 # nginx start
 RUN apt-get install -y nginx
 RUN rm -f /etc/nginx/sites-available/default
@@ -52,26 +44,40 @@ COPY nginx/enable-php.conf /etc/nginx/enable-php.conf
 COPY nginx/site.conf /etc/nginx/conf.d/site.conf
 #nginx end
 
+# composer start
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');"\
+    && mv composer.phar /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer
+# composer end
+
+# swoole start
+ENV swoole_version=4.6.6
+RUN  pecl install https://pecl.php.net/get/swoole-${swoole_version}.tgz \
+    && docker-php-ext-enable swoole
+# swoole end
+
+RUN apt-get install -y wget libssh2-1-dev
+RUN pecl install ssh2-1.2 \
+    && docker-php-ext-enable ssh2
+
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
 RUN rm -f /usr/local/etc/php-fpm.d/zz-docker.conf
 
 COPY entrypoint.sh /etc/entrypoint.sh
 ENTRYPOINT ["/etc/entrypoint.sh"]
 
 COPY html /var/www/html
-
 COPY php/conf.d/docker-php-ext-opcache.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
-
-RUN apt-get install -y wget libssh2-1-dev
-
-ENV swoole_version=4.6.6
-RUN  pecl install https://pecl.php.net/get/swoole-${swoole_version}.tgz \
-    && docker-php-ext-enable swoole
-
-RUN pecl install ssh2-1.2 \
-    && docker-php-ext-enable ssh2
 
 RUN echo "* soft nofile 655360" >> /etc/security/limits.conf \
     && echo "* hard nofile 655360" >> /etc/security/limits.conf
+
+RUN mkdir -p /var/log/php \
+    && chown -R www-data:www-data /var/log/php
+COPY php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 STOPSIGNAL SIGQUIT
 EXPOSE 80
