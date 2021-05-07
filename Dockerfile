@@ -67,6 +67,7 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN rm -f /usr/local/etc/php-fpm.d/zz-docker.conf
 
 COPY entrypoint.sh /etc/entrypoint.sh
+RUN chmod +x /etc/entrypoint.sh
 ENTRYPOINT ["/etc/entrypoint.sh"]
 
 COPY html /var/www/html
