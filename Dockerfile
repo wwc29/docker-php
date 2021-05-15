@@ -54,7 +54,14 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 
 # swoole start
 ENV swoole_version=4.6.6
-RUN  pecl install https://pecl.php.net/get/swoole-${swoole_version}.tgz \
+RUN apt-get install -y wget
+RUN cd /tmp \
+    && wget -O swoole-src-${swoole_version}.tar.gz https://github.com/swoole/swoole-src/archive/refs/tags/v${swoole_version}.tar.gz \
+    && tar zxf swoole-src-${swoole_version}.tar.gz && rm -f swoole-src-${swoole_version}.tar.gz \
+    && cd swoole-src-${swoole_version} \
+    && phpize && ./configure --enable-http2 \
+    && make && make install \
+    && rm -rf /tmp/swoole-src \
     && docker-php-ext-enable swoole
 # swoole end
 
