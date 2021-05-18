@@ -90,3 +90,6 @@ COPY php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 STOPSIGNAL SIGQUIT
 EXPOSE 80
 CMD ["php-fpm", "-F"]
+
+RUN sed -i 's/expose_php = On/expose_php = Off/g' "$PHP_INI_DIR/php.ini" \
+    && sed -i 's/# server_tokens off/server_tokens off/g' /etc/nginx/nginx.conf
