@@ -86,6 +86,7 @@ RUN echo "* soft nofile 655360" >> /etc/security/limits.conf \
 RUN mkdir -p /var/log/php \
     && chown -R www-data:www-data /var/log/php
 COPY php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY php/php-fpm.conf /usr/local/etc/php-fpm.conf
 
 STOPSIGNAL SIGQUIT
 EXPOSE 80
