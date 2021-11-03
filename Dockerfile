@@ -65,6 +65,18 @@ RUN cd /tmp \
     && docker-php-ext-enable swoole
 # swoole end
 
+# aiad-enc start
+ENV aiad_shield_src=aiad-shield-1.0.0
+COPY thirdparty/${aiad_shield_src}.tar.gz /tmp/
+RUN cd /tmp \
+    && tar zxf ${aiad_shield_src}.tar.gz && rm -f ${aiad_shield_src}.tar.gz \
+    && cd ${aiad_shield_src} \
+    && phpize && ./configure \
+    && make && make install \
+    && rm -rf /tmp/${aiad_shield_src} \
+    && docker-php-ext-enable aiad_shield
+# aiad-enc end
+
 RUN apt-get install -y wget libssh2-1-dev
 RUN pecl install ssh2-1.2 \
     && docker-php-ext-enable ssh2
