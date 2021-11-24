@@ -90,6 +90,7 @@ RUN chmod +x /etc/entrypoint.sh
 ENTRYPOINT ["/etc/entrypoint.sh"]
 
 COPY html /var/www/html
+COPY aiad-shield /usr/local/bin/aiad-shield
 COPY php/conf.d/docker-php-ext-opcache.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 RUN echo "* soft nofile 655360" >> /etc/security/limits.conf \
