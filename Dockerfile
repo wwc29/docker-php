@@ -40,17 +40,29 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 # composer end
 
 # swoole start
-ENV swoole_src=swoole-src-4.7.1
-RUN apt-get install -y wget openssl libssl-dev
+ENV swoole_src=swoole-src-4.6.6
+RUN apt-get install -y wget openssl libssl-dev libcurl4-openssl-dev
 COPY thirdparty/${swoole_src}.tar.gz /tmp/
 RUN cd /tmp \
     && tar zxf ${swoole_src}.tar.gz && rm -f ${swoole_src}.tar.gz \
     && cd ${swoole_src} \
-    && phpize && ./configure --enable-http2 --enable-openssl \
+    && phpize && ./configure --enable-http2 --enable-openssl --enable-swoole-curl \
     && make && make install \
     && rm -rf /tmp/${swoole_src} \
     && docker-php-ext-enable swoole
 # swoole end
+
+# xlswriter start
+ENV XLSWRITER_NAME=xlswriter-1.3.7.tgz
+COPY thirdparty/${XLSWRITER_NAME} /tmp
+RUN cd /tmp \
+    && mkdir -p /tmp/xlswriter \
+    && tar -xf ${XLSWRITER_NAME} -C /tmp/xlswriter --strip-components=1 \
+    && rm ${XLSWRITER_NAME} \
+    && cd /tmp/xlswriter \
+    && phpize && ./configure --enable-reader && make && make install
+RUN docker-php-ext-enable xlswriter
+# xlswriter end
 
 RUN apt-get install -y wget libssh2-1-dev
 RUN pecl install ssh2-1.2 \
