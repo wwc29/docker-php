@@ -22,7 +22,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install gd
 # end DG库相关
 
-RUN docker-php-ext-install opcache
+RUN docker-php-ext-install opcache sockets
+
+RUN pecl install redis \
+    && docker-php-ext-enable redis
 
 # nginx start
 RUN apt-get install -y nginx
@@ -40,7 +43,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 # composer end
 
 # swoole start
-ENV swoole_src=swoole-src-4.6.6
+ENV swoole_src=swoole-src-4.7.1
 RUN apt-get install -y wget openssl libssl-dev libcurl4-openssl-dev
 COPY thirdparty/${swoole_src}.tar.gz /tmp/
 RUN cd /tmp \
