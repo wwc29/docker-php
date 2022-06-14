@@ -14,6 +14,9 @@ RUN docker-php-ext-install -j$(nproc) \
     pcntl \
     pdo_mysql
 
+# 安装常用工具
+RUN apt-get install -y git vim
+
 # start GD库相关
 RUN apt-get install -y sendmail zlib1g-dev libwebp-dev libjpeg62-turbo-dev libpng-dev libxpm-dev libfreetype6-dev
 
